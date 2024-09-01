@@ -44,7 +44,7 @@ async fn main() -> Result<()> {
         .apply()?;
 
     let config = Config::new()?;
-    let mut interval = tokio::time::interval(Duration::from_secs(60));
+    let mut interval = tokio::time::interval(Duration::from_secs(50));
 
     loop {
         tokio::select! {
