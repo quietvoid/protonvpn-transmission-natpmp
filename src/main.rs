@@ -47,17 +47,23 @@ async fn main() -> Result<()> {
     loop {
         tokio::select! {
             _ = interval.tick() => {
-                let (udp_port, tcp_port) = send_port_mapping_request(&config.gateway).await?;
-                log::info!("Mapped public ports - UDP: {udp_port}, TCP: {tcp_port}");
+                let res = send_port_mapping_request(&config.gateway).await;
 
-                if let Some(rpc_cfg) = config.transmission.as_ref() {
-                    set_transmission_port(rpc_cfg, tcp_port).await
-                        .inspect_err(|e| log::error!("Failed setting transmission port: {e}"))
-                        .ok();
-                } else {
-                    log::error!("Unconfigured torrent client config!");
-                    break;
-                }
+                match res {
+                    Ok((udp_port, tcp_port)) => {
+                        log::info!("Mapped public ports - UDP: {udp_port}, TCP: {tcp_port}");
+
+                        if let Some(rpc_cfg) = config.transmission.as_ref() {
+                            set_transmission_port(rpc_cfg, tcp_port).await
+                                .inspect_err(|e| log::error!("Failed setting transmission port: {e}"))
+                                .ok();
+                        } else {
+                            log::error!("Unconfigured torrent client config!");
+                            break;
+                        }
+                    },
+                    Err(e) => log::error!("Failed sending port mapping request: {e}")
+                };
             }
 
             _ = signal_handling::wait_for_signal().fuse() => {
@@ -73,34 +79,37 @@ async fn main() -> Result<()> {
 async fn send_port_mapping_request(gateway: &str) -> Result<(u16, u16)> {
     log::info!("Sending port mapping request");
 
-    let client = natpmp_ng::new_tokio_natpmp_with(gateway.parse()?).await?;
+    tokio::time::timeout(Duration::from_secs(15), async {
+        let client = natpmp_ng::new_tokio_natpmp_with(gateway.parse()?).await?;
 
-    client
-        .send_port_mapping_request(Protocol::UDP, 0, 1, 60)
-        .await?;
-    tokio::time::sleep(Duration::from_millis(500)).await;
+        client
+            .send_port_mapping_request(Protocol::UDP, 0, 1, 60)
+            .await?;
+        tokio::time::sleep(Duration::from_millis(500)).await;
 
-    let udp_res = client.read_response_or_retry().await?;
-    let udp_public_port = if let Response::UDP(e) = udp_res {
-        e.public_port()
-    } else {
-        bail!("Unexpected UCP response");
-    };
+        let udp_res = client.read_response_or_retry().await?;
+        let udp_public_port = if let Response::UDP(e) = udp_res {
+            e.public_port()
+        } else {
+            bail!("Unexpected UCP response");
+        };
 
-    // Wait a bit between requests
-    tokio::time::sleep(Duration::from_millis(500)).await;
+        // Wait a bit between requests
+        tokio::time::sleep(Duration::from_millis(500)).await;
 
-    client
-        .send_port_mapping_request(Protocol::TCP, 0, 1, 60)
-        .await?;
-    tokio::time::sleep(Duration::from_millis(500)).await;
+        client
+            .send_port_mapping_request(Protocol::TCP, 0, 1, 60)
+            .await?;
+        tokio::time::sleep(Duration::from_millis(500)).await;
 
-    let tcp_res = client.read_response_or_retry().await?;
-    let tcp_public_port = if let Response::TCP(e) = tcp_res {
-        e.public_port()
-    } else {
-        bail!("Unexpected TCP response");
-    };
+        let tcp_res = client.read_response_or_retry().await?;
+        let tcp_public_port = if let Response::TCP(e) = tcp_res {
+            e.public_port()
+        } else {
+            bail!("Unexpected TCP response");
+        };
 
-    Ok((udp_public_port, tcp_public_port))
+        Ok((udp_public_port, tcp_public_port))
+    })
+    .await?
 }
