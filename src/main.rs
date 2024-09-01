@@ -1,6 +1,8 @@
 use std::{fmt::Arguments, time::Duration};
 
 use anyhow::{bail, Result};
+use backon::ConstantBuilder;
+use backon::Retryable;
 use config::Config;
 use fern::FormatCallback;
 use futures::FutureExt;
@@ -47,7 +49,9 @@ async fn main() -> Result<()> {
     loop {
         tokio::select! {
             _ = interval.tick() => {
-                let res = send_port_mapping_request(&config.gateway).await;
+                let res = (|| async { send_port_mapping_request(&config.gateway).await })
+                    .retry(ConstantBuilder::default())
+                    .await;
 
                 match res {
                     Ok((udp_port, tcp_port)) => {
@@ -79,14 +83,16 @@ async fn main() -> Result<()> {
 async fn send_port_mapping_request(gateway: &str) -> Result<(u16, u16)> {
     log::info!("Sending port mapping request");
 
-    tokio::time::timeout(Duration::from_secs(15), async {
+    tokio::time::timeout(Duration::from_secs(10), async {
         let client = natpmp_ng::new_tokio_natpmp_with(gateway.parse()?).await?;
 
+        log::debug!("Sending UDP port mapping request");
         client
             .send_port_mapping_request(Protocol::UDP, 0, 1, 60)
             .await?;
         tokio::time::sleep(Duration::from_millis(500)).await;
 
+        log::debug!("Reading UDP response");
         let udp_res = client.read_response_or_retry().await?;
         let udp_public_port = if let Response::UDP(e) = udp_res {
             e.public_port()
@@ -97,11 +103,13 @@ async fn send_port_mapping_request(gateway: &str) -> Result<(u16, u16)> {
         // Wait a bit between requests
         tokio::time::sleep(Duration::from_millis(500)).await;
 
+        log::debug!("Sending TCP port mapping request");
         client
             .send_port_mapping_request(Protocol::TCP, 0, 1, 60)
             .await?;
         tokio::time::sleep(Duration::from_millis(500)).await;
 
+        log::debug!("Reading TCP response");
         let tcp_res = client.read_response_or_retry().await?;
         let tcp_public_port = if let Response::TCP(e) = tcp_res {
             e.public_port()
