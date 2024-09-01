@@ -1,0 +1,22 @@
+[package]
+name = "protonvpn-transmission-natpmp"
+version = "1.0.0"
+authors = ["quietvoid"]
+edition = "2021"
+rust-version = "1.79.0"
+license = "MIT"
+
+[dependencies]
+anyhow = { version = "1.0" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = ["preserve_order"] }
+tokio = { version = "1.40.0", default-features = false, features = ["rt", "macros", "signal", "time"] }
+futures = "0.3.30"
+natpmp-ng = { git = "https://github.com/quietvoid/natpmp-ng.git", branch = "mod", features = ["tokio"] }
+time = { version = "0.3.36", features = ["formatting", "local-offset"] }
+log = "0.4"
+fern = "0.6.2"
+transmission-rpc = { git = "https://github.com/quietvoid/transmission-rpc.git", branch = "mod" }
+
+[profile.release]
+strip = true
