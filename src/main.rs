@@ -38,7 +38,6 @@ async fn main() -> Result<()> {
     fern::Dispatch::new()
         .format(default_formatter)
         .level(log::LevelFilter::Info)
-        .chain(std::io::stdout())
         .chain(fern::log_file(log_path)?)
         .apply()?;
 
