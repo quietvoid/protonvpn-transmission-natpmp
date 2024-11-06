@@ -10,13 +10,13 @@ license = "MIT"
 anyhow = { version = "1.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
-tokio = { version = "1.40.0", default-features = false, features = ["rt", "macros", "signal", "time"] }
-futures = "0.3.30"
-backon = "1.1.0"
-natpmp-ng = { git = "https://github.com/quietvoid/natpmp-ng.git", branch = "mod", features = ["tokio"] }
+tokio = { version = "1.41.0", default-features = false, features = ["rt", "macros", "signal", "time"] }
+futures = "0.3.31"
+backon = "1.2.0"
+natpmp = { version = "0.5.0", features = ["tokio"] }
 time = { version = "0.3.36", features = ["formatting", "local-offset"] }
 log = "0.4"
-fern = "0.6.2"
+fern = "0.7.0"
 transmission-rpc = { git = "https://github.com/quietvoid/transmission-rpc.git", branch = "mod" }
 
 [profile.release]
