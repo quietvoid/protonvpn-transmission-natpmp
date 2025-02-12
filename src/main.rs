@@ -96,7 +96,7 @@ async fn send_port_mapping_request(gateway: &str) -> Result<(u16, u16)> {
         let udp_public_port = if let natpmp::Response::UDP(e) = udp_res {
             e.public_port()
         } else {
-            bail!("Unexpected UCP response");
+            bail!("Unexpected UDP response");
         };
 
         // Wait a bit between requests

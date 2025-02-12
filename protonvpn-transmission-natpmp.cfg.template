@@ -1,0 +1,8 @@
+{
+    "gateway": "10.2.0.1",
+    "transmission": {
+        "rpc_url": "http://localhost:9091/transmission/rpc",
+        "rpc_username": "",
+        "rpc_password": ""
+    }
+}
