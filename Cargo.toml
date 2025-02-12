@@ -1,6 +1,6 @@
 [package]
 name = "protonvpn-transmission-natpmp"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["quietvoid"]
 edition = "2021"
 rust-version = "1.84.0"
@@ -17,7 +17,7 @@ natpmp = { version = "0.5.0", features = ["tokio"] }
 time = { version = "0.3.37", features = ["formatting", "local-offset"] }
 log = "0.4"
 fern = "0.7.1"
-transmission-rpc = { git = "https://github.com/quietvoid/transmission-rpc.git", branch = "mod" }
+transmission-rpc = "0.5.0"
 
 [profile.release]
 strip = true
