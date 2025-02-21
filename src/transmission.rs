@@ -1,7 +1,7 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use transmission_rpc::{
-    types::{BasicAuth, SessionSetArgs},
     TransClient,
+    types::{BasicAuth, SessionSetArgs},
 };
 
 use crate::config::TransmissionRpcConfig;

@@ -1,6 +1,6 @@
 use std::{fmt::Arguments, time::Duration};
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use backon::ConstantBuilder;
 use backon::Retryable;
 use config::Config;
