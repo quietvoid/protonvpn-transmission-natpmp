@@ -10,11 +10,11 @@ license = "MIT"
 anyhow = { version = "1.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
-tokio = { version = "1.44.0", default-features = false, features = ["rt", "macros", "signal", "time"] }
+tokio = { version = "1.44.2", default-features = false, features = ["rt", "macros", "signal", "time"] }
 futures = "0.3.31"
-backon = "1.4.0"
+backon = "1.5.0"
 natpmp = { version = "0.5.0", features = ["tokio"] }
-time = { version = "0.3.39", features = ["formatting", "local-offset"] }
+time = { version = "0.3.41", features = ["formatting", "local-offset"] }
 log = "0.4"
 fern = "0.7.1"
 transmission-rpc = "0.5.0"
