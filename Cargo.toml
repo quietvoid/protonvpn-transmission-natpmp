@@ -1,6 +1,6 @@
 [package]
 name = "protonvpn-transmission-natpmp"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["quietvoid"]
 edition = "2024"
 rust-version = "1.85.0"
@@ -10,11 +10,11 @@ license = "MIT"
 anyhow = { version = "1.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
-tokio = { version = "1.44.2", default-features = false, features = ["rt", "macros", "signal", "time"] }
+tokio = { version = "1.48.0", default-features = false, features = ["rt", "macros", "signal", "time"] }
 futures = "0.3.31"
-backon = "1.5.0"
+backon = "1.6.0"
 natpmp = { version = "0.5.0", features = ["tokio"] }
-time = { version = "0.3.41", features = ["formatting", "local-offset"] }
+time = { version = "0.3.44", features = ["formatting", "local-offset"] }
 log = "0.4"
 fern = "0.7.1"
 transmission-rpc = "0.5.0"
